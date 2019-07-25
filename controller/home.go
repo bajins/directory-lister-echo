@@ -9,38 +9,11 @@ import (
 	"strings"
 )
 
-/**
-获取展示目录下的所有
-*/
-func GetDirectory(c echo.Context) error {
-	// 页
-	lows := c.QueryParam("low")
-	low, err := strconv.Atoi(lows)
-	if err != nil {
-		return result.Error(c, 300, "请传入参数low")
-	}
-	// 数量
-	highs := c.QueryParam("high")
-	high, err := strconv.Atoi(highs)
-	if err != nil {
-		return result.Error(c, 300, "请传入参数high")
-	}
-
-	path := c.QueryParam("path")
-	if path == "" {
-		path = "/"
-	}
-	//config := services.ConfigService.GetByType("filePath")
-	//var path string
-	//if config != nil && utils.IsExistDir(config[0].Value) {
-	//	path = config[0].Value
-	//} else {
-	//	path = utils.OsPath()
-	//}
+func GetDirList(root, path string) []map[string]interface{} {
 	// 获取目录下的文件和子目录信息
-	list := utils.GetFileList("F:\\directory-lister-echo" + path)
+	list := utils.GetFileList(root + path)
 	if list == nil {
-		return result.Error(c, 402, "目录路径不正确")
+		return nil
 	}
 	// 创建切片
 	var dir []map[string]interface{}
@@ -64,14 +37,51 @@ func GetDirectory(c echo.Context) error {
 		// 放进切片中
 		dir = append(dir, m)
 	}
+	return dir
+}
 
-	total := len(dir)
-	low = (low - 1) * high
-	end := low + high
-	if total < end {
-		end = total
+/**
+获取展示目录下的所有
+*/
+func GetDir(c echo.Context) error {
+	// 页
+	lows := c.QueryParam("low")
+	var low int
+	var err error
+	if lows != "" {
+		low, err = strconv.Atoi(lows)
+		if err != nil {
+			return result.Error(c, 300, "请传入参数low")
+		}
 	}
-	dir = dir[low:end]
+	// 数量
+	highs := c.QueryParam("high")
+	var high int
+	if highs != "" {
+		high, err = strconv.Atoi(highs)
+		if err != nil {
+			return result.Error(c, 300, "请传入参数high")
+		}
+	}
+
+	path := c.QueryParam("path")
+	//config := services.ConfigService.GetByType("filePath")
+	//var path string
+	//if config != nil && utils.IsExistDir(config[0].Value) {
+	//	path = config[0].Value
+	//} else {
+	//	path = utils.OsPath()
+	//}
+	dir := GetDirList("F:\\directory-lister-echo", path)
+	total := len(dir)
+	if lows != "" && highs != "" {
+		low = (low - 1) * high
+		end := low + high
+		if total < end {
+			end = total
+		}
+		dir = dir[low:end]
+	}
 	data := make(map[string]interface{})
 	data["total"] = total
 	data["file"] = dir
@@ -95,8 +105,8 @@ func GetDirectory(c echo.Context) error {
  * @date 2019/6/25 15:37
  */
 func DownloadFile(c echo.Context) error {
+	fmt.Println("============", c.QueryParams())
 	filePath := c.QueryParam("filePath")
-	fmt.Println("============", filePath)
 	if filePath == "" {
 		//this.Ctx.WriteString("目录路径不正确")
 		return result.Error(c, 402, "目录路径不正确")
