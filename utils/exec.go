@@ -3,39 +3,47 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
-	"runtime"
+	"path"
 )
 
-/**
- * 执行python脚本
- *
- * @param script string 要执行的Python脚本，应该是完整的路径
- * @param args ...string 命令参数
- * @return result string 执行的结果
- * @return err error 错误
- * @Description
- * @author claer www.bajins.com
- * @date 2019/7/16 16:52
- */
-func ExecutePython(script string, args ...string) (result string, err error) {
+// 执行python脚本
+// string: 要执行的Python脚本，应该是完整的路径
+// args: 	参数
+func ExecutePython(script string, args ...string) (string, error) {
 	if !IsFile(script) {
-		err = errors.New(fmt.Sprintf(script, "error：%s", "文件不存在"))
+		err := errors.New(fmt.Sprintf(script, "error：%s", "文件不存在"))
 		return "", err
 	}
 	name := "python"
-	if runtime.GOOS == "linux" {
+	// 判断是否同时装了python2.7和python3，优先使用python3
+	_, err := Execute("python3", "-V")
+	if err == nil {
 		name = "python3"
 	}
 	// 把脚本和参数组合到一个字符串数组
 	args = append([]string{script}, args...)
-	out, err := exec.Command(name, args...).Output()
+	out, err := Execute(name, args...)
+	if err != nil {
+		if err.Error() == "exit status 1" {
+			// 获取当前绝对路径
+			dir, err := os.Getwd()
+			if err == nil {
+				p := path.Join(dir, "pyutils", "requirements.txt")
+				Execute("pip", "install", "-r", p)
+			}
+		}
+	}
+	return out, err
+}
+
+// 执行dos或shell命令
+// program: 程序名称
+// args: 	参数
+func Execute(program string, args ...string) (string, error) {
 	// exit status 2 一般是文件没有找到
 	// exit status 1 一般是命令执行错误
-	if err != nil {
-		return string(out), err
-	}
-	result = string(out)
-
-	return result, nil
+	out, err := exec.Command(program, args...).Output()
+	return string(out), err
 }

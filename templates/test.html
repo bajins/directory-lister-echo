@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>Beauty Directory Lister </title>
+    <meta name="generator" content="EverEdit"/>
+    <meta name="author" content="Mr.Fong"/>
+    <meta name="keywords" content="BeautyDir,Directory Lister,目录列表,目录索引"/>
+    <meta name="description" content="BeautyDir目录列表程序"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/v4-shims.min.css">
+    <link rel="stylesheet" href="/static/test/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/test/default.min.css">
+    <link rel="stylesheet" href="/static/test/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/static/test/layui/css/layui.css">
+    <link rel='stylesheet' href='/static/test/style.css'>
+    <style type="text/css">
+
+        a {
+            color: #246bb7;
+        }
+
+    </style>
+
+</head>
+<body>
+<!--顶部导航栏-->
+<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-white shadow-sm border-bottom">
+    <div class="container big-nav">
+        <a class="navbar-brand" href="./">
+            <img src="/static/test/image/Logo.png" width="180" height="40" class="d-inline-block align-top mr-2" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="./">网站首页</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="./index.php?c=cache" target="_blank">文件索引</a>
+                </li>
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="./README.htm" target="_blank">帮助文档</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="./admin/admin.php" target="_blank">文件管理</a>
+                </li>
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0" action="index.php" method="GET">
+                <input type="text" name="c" required lay-verify="required" autocomplete="off" value="search"
+                       style="display: none;">
+                <input name="s" class="form-control mr-sm-2" type="search" placeholder="请输入搜索关键字" aria-label="Search"
+                       value="">
+                <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">
+                    <i class="fa fa-search" aria-hidden="true"></i> 搜索
+                </button>
+            </form>
+
+        </div>
+    </div>
+</nav>
+<!-- 顶部导航栏END -->
+<br>
+
+
+<!--面包屑导航-->
+<nav aria-label="breadcrumb" class="d-none d-md-block d-md-none">
+    <ol class="breadcrumb">
+        {{range $index,$breadcrumb:=.breadcrumbs}}
+            {{if .breadcrumbs}}
+                <li class="breadcrumb-item active">
+                    {{ if eq $breadcrumb.text .web_title }}
+                        <a href="{{$breadcrumb.link}}"><i class="fa fa-home"></i>{{$breadcrumb.text}}</a>
+                    {{else}}
+                        {{$breadcrumb.text}}
+                    {{end}}
+                </li>
+            {{else}}
+                <li class="breadcrumb-item">
+                    <a href="<?php echo $breadcrumb['link']; ?>">
+                        {{ if eq $breadcrumb.text .web_title }}
+                            <i class="fa fa-home"></i>
+                        {{end}}
+                        {{$breadcrumb.text}}
+                    </a>
+                </li>
+            {{end}}
+        {{end}}
+    </ol>
+</nav>
+<!--面包屑导航END-->
+<!--遍历目录-->
+<div id="list">
+    <div class="container">
+        <div class="layui-row">
+            <div class="layui-col-lg12">
+                <table class="layui-table" lay-skin="line">
+                    <colgroup>
+                        <col width="400">
+                        <col width="200">
+                        <col width="200">
+                        <col width="180">
+                        <col>
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th class="layui-hide-xs"></th>
+                        <th class="layui-hide-xs">修改时间</th>
+                        <th>文件大小</th>
+                        <th class="layui-hide-xs">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr id="id1">
+                        <td>
+                            <!--判断文件是否是图片-->
+                            <a href="./index.php?dir=/Mac OS" id="url1"><i class="fa fa-folder-open"></i> Mac OS</a>
+                        </td>
+                        <td id="info" class="layui-hide-xs">
+                            <!--如果是readme.md-->
+                            <!--如果是文件-->
+                        </td>
+                        <td class="layui-hide-xs">2019-11-27 15:45</td>
+                        <td>-</td>
+                        <td class="layui-hide-xs">
+                            <!--如果是管理模式-->
+                            <!--管理模式END-->
+                            <!--如果是markdown文件-->
+                        </td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</br></br>
+<div class="footer text-center">
+    <p align="center" style='text-align:center'> Copyright &copy; 2019 ULMT.COM All Rights Reserved.</p>
+</div>
+<!-- 底部END -->
+
+
+<!--遍历目录END-->
+<script type="text/javascript" src="/static/test/jquery.min.js"></script>
+<script type="text/javascript" src="/static/test/layui/layui.js"></script>
+<script type="text/javascript" src="/static/test/embed.js?v=1.2-20190528-modify"></script>
+<script type="text/javascript" src="/static/test/clipBoard.min.js"></script>
+
+
+<script src="/static/test/bootstrap.min.js"></script>
+<script src="/static/test/highlight.min.js"></script>
+
+</body>
+</html>

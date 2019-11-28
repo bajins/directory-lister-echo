@@ -1,9 +1,10 @@
 package main
 
 import (
-	"directory-lister-echo/controller"
 	"flag"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"html/template"
+	"io"
 )
 
 // 禁止浏览器页面缓存
@@ -42,12 +43,21 @@ func Cors(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-/**
- * 获取传入参数的端口，如果没传默认值为8000
- *
- * @author claer www.bajins.com
- * @date 2019/6/28 15:31
- */
+// Echo框架的自定义html/template渲染器
+type Template struct {
+	templates *template.Template
+}
+
+// 渲染模板文件
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	// Add global methods if data is a map
+	//if viewContext, isMap := data.(map[string]interface{}); isMap {
+	//	viewContext["reverse"] = c.Echo().Reverse
+	//}
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+// 获取传入参数的端口，如果没传默认值为8000
 func Port() (port string) {
 	flag.StringVar(&port, "p", "8000", "默认端口:8000")
 	flag.Parse()
@@ -62,9 +72,13 @@ func Port() (port string) {
 func main() {
 	e := echo.New()
 	e.Use(FilterNoCache)
+	e.Renderer = &Template{
+		templates: template.Must(template.ParseGlob("templates/*.html")),
+	}
+	e.Static("static", "static")
 	//e.Use(Cors())
 	//e.Use(Authorize())
-	e.GET("/dir",controller.GetDirectory)
-	e.POST("/",controller.DownloadFile)
+	e.GET("/dir", GetDir)
+	e.Any("/", Test)
 	e.Logger.Fatal(e.Start(Port()))
 }
