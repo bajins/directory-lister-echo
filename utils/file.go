@@ -45,7 +45,7 @@ func GetDirListAll(files []os.FileInfo, path string) []os.FileInfo {
 		if !f.IsDir() {
 			files = append(files, f)
 		} else {
-			currentPath := strings.Replace(path+"\\"+f.Name(), "\\", "/", -1)
+			currentPath := strings.ReplaceAll(path+"\\"+f.Name(), "\\", "/")
 			GetDirListAll(files, currentPath)
 		}
 		return nil
@@ -210,20 +210,6 @@ func GetSuffix(filePath string) string {
 }
 
 /**
- * 获取路径中的文件名
- *
- * @param null
- * @return
- * @Description
- * @author claer www.bajins.com
- * @date 2019/6/25 15:36
- */
-func GetFileName(filePath string) string {
-	ext := filepath.Base(filePath)
-	return ext
-}
-
-/**
  * 获取路径中的目录及文件名
  *
  * @param null
@@ -254,7 +240,7 @@ func ParentDirectory(dirctory string) string {
  * @date 2019/6/28 15:53
  */
 func CurrentDirectory() string {
-	return strings.Replace(OsPath(), "\\", "/", -1)
+	return strings.ReplaceAll(OsPath(), "\\", "/")
 }
 
 /**
@@ -277,46 +263,22 @@ func ContextPath(root string) (path string, err error) {
 	return dir[0 : index+len(root)], nil
 }
 
-/**
- * 路径标准化拼接
- *
- * @param paths 可变路径参数
- * @return
- * @author claer woytu.com
- * @date 2019/6/29 3:46
- */
-func PathStitching(paths ...string) string {
-	//sep := string(os.PathSeparator)
-	way := ""
-	for _, value := range paths {
-		way = path.Join(way, value)
-	}
-	return way
-}
-
-/**
- * 对路径进行重组为目录名+路径
- *
- * @param path string 路径
- * @param rootName string 路径头，根目录的名称，就是/的名称
- * @return
- * @Description
- * @author claer www.bajins.com
- * @date 2019/7/19 11:26
- */
-func PathSplitter(path string, rootName string) []map[string]string {
+// 对路径进行重组为目录名+路径
+// path string 路径
+// rootName string 路径头，根目录的名称，就是/的名称
+func PathSplitter(toPath string, rootName string) []map[string]string {
 	// 替换路径中的分割符
-	path = strings.Replace(path, "\\", "/", -1)
+	toPath = strings.ReplaceAll(toPath, "\\", "/")
 	// 判断第一个字符是否为分割符
-	indexSplitter := strings.Index(path, "/")
+	indexSplitter := strings.Index(toPath, "/")
 	if indexSplitter != 0 {
-		path = "/" + path
+		toPath = path.Join("/", toPath)
 	}
 	var links []map[string]string
 	rootLink := make(map[string]string)
 	rootLink["name"] = rootName
 	// 如果是根目录，那么就返回空
-	if IsStringEmpty(path) || path == "/" {
+	if IsStringEmpty(toPath) || toPath == "/" {
 		rootLink["path"] = ""
 		links = append(links, rootLink)
 		return links
@@ -324,13 +286,13 @@ func PathSplitter(path string, rootName string) []map[string]string {
 	rootLink["path"] = "/"
 	links = append(links, rootLink)
 	// 避免分割路径时多分割一次，去掉第一个分割符，并对路径分割
-	split := strings.Split(path[1:], "/")
+	split := strings.Split(toPath[1:], "/")
 	for k, v := range split {
 		link := make(map[string]string)
 		link["name"] = v
 		// 不是最后一个目录就设置路径
 		if k != len(split)-1 {
-			link["path"] = path[0:strings.Index(path, v)] + v
+			link["path"] = path.Join(toPath[0:strings.Index(toPath, v)], v)
 		} else {
 			link["path"] = ""
 		}

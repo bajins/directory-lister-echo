@@ -93,5 +93,5 @@ func GBK2UTF(text string) string {
 
 	text = enc.ConvertString(text)
 
-	return strings.Replace(text, "聽", "&nbsp;", -1)
+	return strings.ReplaceAll(text, "聽", "&nbsp;")
 }

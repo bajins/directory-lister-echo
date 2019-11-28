@@ -42,11 +42,11 @@
                     <a class="nav-link" href="./">网站首页</a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="./index.php?c=cache" target="_blank">文件索引</a>
+                    <a class="nav-link" href="./file-tree" target="_blank">文件索引</a>
                 </li>
 
                 <li class="nav-item active">
-                    <a class="nav-link" href="./README.htm" target="_blank">帮助文档</a>
+                    <a class="nav-link" href="./help" target="_blank">帮助文档</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="./admin/admin.php" target="_blank">文件管理</a>
@@ -69,28 +69,30 @@
 <!-- 顶部导航栏END -->
 <br>
 
-
+{{/*https://github.com/flosch/pongo2*/}}
+{{/*https://github.com/osteele/liquid*/}}
 <!--面包屑导航-->
 <nav aria-label="breadcrumb" class="d-none d-md-block d-md-none">
     <ol class="breadcrumb">
         {{range $index,$breadcrumb:=.breadcrumbs}}
-            {{if .breadcrumbs}}
-                <li class="breadcrumb-item active">
-                    {{ if eq $breadcrumb.text .web_title }}
-                        <a href="{{$breadcrumb.link}}"><i class="fa fa-home"></i>{{$breadcrumb.text}}</a>
-                    {{else}}
-                        {{$breadcrumb.text}}
-                    {{end}}
-                </li>
+            {{$index}},{{$breadcrumb.path}},{{EqJudge .breadcrumbs $index}},{{$.web_title}}
+            {{if EqJudge .breadcrumbs $index}}
+{{/*                <li class="breadcrumb-item active">*/}}
+{{/*                    {{ if eq $breadcrumb.path $.web_title }}*/}}
+{{/*                        <a href="{{index $breadcrumb 0}}"><i class="fa fa-home"></i>{{$breadcrumb.name}}</a>*/}}
+{{/*                    {{else}}*/}}
+{{/*                        {{$breadcrumb.name}}*/}}
+{{/*                    {{end}}*/}}
+{{/*                </li>*/}}
             {{else}}
-                <li class="breadcrumb-item">
-                    <a href="<?php echo $breadcrumb['link']; ?>">
-                        {{ if eq $breadcrumb.text .web_title }}
-                            <i class="fa fa-home"></i>
-                        {{end}}
-                        {{$breadcrumb.text}}
-                    </a>
-                </li>
+{{/*                <li class="breadcrumb-item">*/}}
+{{/*                    <a href="{{$breadcrumb.path}}">*/}}
+{{/*                        {{ if eq $breadcrumb.name .web_title }}*/}}
+{{/*                            <i class="fa fa-home"></i>*/}}
+{{/*                        {{end}}*/}}
+{{/*                        {{$breadcrumb.name}}*/}}
+{{/*                    </a>*/}}
+{{/*                </li>*/}}
             {{end}}
         {{end}}
     </ol>

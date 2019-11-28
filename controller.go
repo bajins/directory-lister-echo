@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -16,8 +18,17 @@ func Index(c echo.Context) error {
 }
 
 func Test(c echo.Context) error {
+	//这边有个地方值得注意，template.New()函数中参数名字要和ParseFiles（）
+	//函数的文件名要相同，要不然就会报错："" is an incomplete template
+	//tmpl := template.New("test.html")
+	//tmpl = tmpl.Funcs(template.FuncMap{"EqJudge": EqJudge})
+	//tmpl, _ = tmpl.ParseFiles("test.html")
+	path := c.QueryParam("path")
+	fmt.Println(len(utils.PathSplitter(path, "Bajins Soft")))
 	return c.Render(http.StatusOK, "test.html", map[string]interface{}{
-		"name": "Dolly!",
+		"name":        "Dolly!",
+		"web_title":   "Bajins",
+		"breadcrumbs": utils.PathSplitter(path, "Bajins Soft"),
 	})
 }
 
@@ -44,7 +55,7 @@ func GetDirList(root, path string) []map[string]interface{} {
 		m["modTime"] = utils.TimeToString(info.ModTime())
 		// 权限
 		//m["mode"] = info.Mode().String()
-		m["path"] = strings.Replace(path+"\\"+info.Name(), "\\", "/", -1)
+		m["path"] = strings.ReplaceAll(path+"\\"+info.Name(), "\\", "/")
 		m["isDir"] = info.IsDir()
 		// 放进切片中
 		dir = append(dir, m)
@@ -113,14 +124,26 @@ func DownloadFile(c echo.Context) error {
 		//this.Ctx.WriteString("目录路径不正确")
 		return Error(c, 402, "目录路径不正确")
 	}
-	filePath = utils.OsPath() + filePath
+	filePath = path.Join(utils.OsPath(), filePath)
 	fmt.Println(filePath)
 	if !utils.IsFile(filePath) {
 		return Error(c, 402, "目录路径不正确")
 	}
-	fileName := utils.GetFileName(filePath)
+	fileName := filepath.Base(filePath)
 	//c.Response().Header().Set("Content-Type","application/x-msdownload")
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+fileName)
 	//第一个参数是文件的地址，第二个参数是下载显示的文件的名称
 	return c.File(filePath)
+}
+
+func EqJudge(obj []interface{}, index int) bool {
+	if len(obj)-1 != index {
+		return true
+	}
+	return false
+}
+
+func MapGetValue(m map[string]interface{}, key string) string {
+	fmt.Println(m[key])
+	return m[key].(string)
 }

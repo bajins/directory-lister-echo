@@ -72,13 +72,18 @@ func Port() (port string) {
 func main() {
 	e := echo.New()
 	e.Use(FilterNoCache)
+
+	tmpl := template.New("echo")
+	tmpl = tmpl.Funcs(template.FuncMap{"EqJudge": EqJudge, "MapGetValue": MapGetValue})
 	e.Renderer = &Template{
-		templates: template.Must(template.ParseGlob("templates/*.html")),
+		templates: template.Must(tmpl.ParseGlob("templates/*.html")),
 	}
+
 	e.Static("static", "static")
 	//e.Use(Cors())
 	//e.Use(Authorize())
 	e.GET("/dir", GetDir)
 	e.Any("/", Test)
+	e.Any("/home/:path", Test)
 	e.Logger.Fatal(e.Start(Port()))
 }
