@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -66,7 +65,7 @@ func GetDirList(root, path string) []map[string]interface{} {
 // 获取展示目录下的所有
 func GetDir(c echo.Context) error {
 	// 页
-	lows := c.QueryParam("low")
+	/*lows := c.QueryParam("low")
 	var low int
 	var err error
 	if lows != "" {
@@ -83,7 +82,7 @@ func GetDir(c echo.Context) error {
 		if err != nil {
 			return Error(c, 300, "请传入参数high")
 		}
-	}
+	}*/
 
 	path := c.QueryParam("path")
 	//config := services.ConfigService.GetByType("filePath")
@@ -94,25 +93,20 @@ func GetDir(c echo.Context) error {
 	//	path = utils.OsPath()
 	//}
 	dir := GetDirList("F:\\directory-lister-echo", path)
-	total := len(dir)
-	if lows != "" && highs != "" {
-		low = (low - 1) * high
-		end := low + high
-		if total < end {
-			end = total
-		}
-		dir = dir[low:end]
-	}
+	//total := len(dir)
+	//if lows != "" && highs != "" {
+	//	low = (low - 1) * high
+	//	end := low + high
+	//	if total < end {
+	//		end = total
+	//	}
+	//	dir = dir[low:end]
+	//}
 	data := make(map[string]interface{})
-	data["total"] = total
+	//data["total"] = total
 	data["file"] = dir
 	links := utils.PathSplitter(path, "Bajins Soft")
 	data["links"] = links
-	if len(links) == 1 {
-		data["parent"] = links[0]
-	} else {
-		data["parent"] = links[len(links)-2]
-	}
 	return Success(c, "获取文件列表成功", data)
 }
 
