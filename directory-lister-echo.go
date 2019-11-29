@@ -72,6 +72,7 @@ func Port() (port string) {
 func main() {
 	e := echo.New()
 	e.Use(FilterNoCache)
+	//e.Use(Cors)
 
 	tmpl := template.New("echo")
 	tmpl = tmpl.Funcs(template.FuncMap{"EqJudge": EqJudge, "MapGetValue": MapGetValue})
@@ -83,7 +84,7 @@ func main() {
 	//e.Use(Cors())
 	//e.Use(Authorize())
 	e.GET("/dir", GetDir)
-	e.Any("/", Test)
+	e.Any("/", GetDir)
 	e.Any("/home/:path", Test)
 	e.Logger.Fatal(e.Start(Port()))
 }
