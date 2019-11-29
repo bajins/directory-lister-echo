@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -32,6 +33,9 @@ func Test(c echo.Context) error {
 }
 
 func GetDirList(root, path string) []map[string]interface{} {
+	if utils.IsExistDir(root) {
+		return nil
+	}
 	// 获取目录下的文件和子目录信息
 	list := utils.GetFileList(root + path)
 	if list == nil {
@@ -84,7 +88,7 @@ func GetDir(c echo.Context) error {
 		}
 	}*/
 
-	path := c.QueryParam("path")
+	toPath := c.QueryParam("path")
 	//config := services.ConfigService.GetByType("filePath")
 	//var path string
 	//if config != nil && utils.IsExistDir(config[0].Value) {
@@ -92,7 +96,8 @@ func GetDir(c echo.Context) error {
 	//} else {
 	//	path = utils.OsPath()
 	//}
-	dir := GetDirList("F:\\directory-lister-echo", path)
+	d, _ := os.Getwd()
+	dir := GetDirList(d, toPath)
 	//total := len(dir)
 	//if lows != "" && highs != "" {
 	//	low = (low - 1) * high
@@ -105,7 +110,7 @@ func GetDir(c echo.Context) error {
 	data := make(map[string]interface{})
 	//data["total"] = total
 	data["file"] = dir
-	links := utils.PathSplitter(path, "Bajins Soft")
+	links := utils.PathSplitter(toPath, "Bajins Soft")
 	data["links"] = links
 	return Success(c, "获取文件列表成功", data)
 }
