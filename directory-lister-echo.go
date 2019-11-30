@@ -56,11 +56,10 @@ func Port() (port string) {
 func main() {
 	e := echo.New()
 	e.Use(FilterNoCache)
-	//e.Use(Cors)
-
-	e.Static("static", "static")
 	//e.Use(Cors())
 	//e.Use(Authorize())
+
+	e.Static("static", "static")
 	e.GET("/dir", GetDir)
 	e.Any("/", GetDir)
 	e.Any("/home/*", Test)
