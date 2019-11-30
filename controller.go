@@ -12,24 +12,12 @@ import (
 )
 
 func Index(c echo.Context) error {
-	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
-		"name": "Dolly!",
-	})
+	return c.JSON(http.StatusOK, "index")
 }
 
 func Test(c echo.Context) error {
-	//这边有个地方值得注意，template.New()函数中参数名字要和ParseFiles（）
-	//函数的文件名要相同，要不然就会报错："" is an incomplete template
-	//tmpl := template.New("test.html")
-	//tmpl = tmpl.Funcs(template.FuncMap{"EqJudge": EqJudge})
-	//tmpl, _ = tmpl.ParseFiles("test.html")
-	path := c.QueryParam("path")
-	fmt.Println(len(utils.PathSplitter(path, "Bajins Soft")))
-	return c.Render(http.StatusOK, "test.html", map[string]interface{}{
-		"name":        "Dolly!",
-		"web_title":   "Bajins",
-		"breadcrumbs": utils.PathSplitter(path, "Bajins Soft"),
-	})
+	fmt.Println(c.Param("path"))
+	return c.JSON(http.StatusOK, "ok")
 }
 
 func GetDirList(root, path string) []map[string]interface{} {
@@ -133,16 +121,4 @@ func DownloadFile(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+fileName)
 	//第一个参数是文件的地址，第二个参数是下载显示的文件的名称
 	return c.File(filePath)
-}
-
-func EqJudge(obj []interface{}, index int) bool {
-	if len(obj)-1 != index {
-		return true
-	}
-	return false
-}
-
-func MapGetValue(m map[string]interface{}, key string) string {
-	fmt.Println(m[key])
-	return m[key].(string)
 }
