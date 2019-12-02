@@ -8,115 +8,84 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 )
 
 func Index(c echo.Context) error {
 	return c.JSON(http.StatusOK, "index")
 }
 
-func Test(c echo.Context) error {
+func Admin(c echo.Context) error {
 	fmt.Println(c.Param("path"))
 	return c.JSON(http.StatusOK, "ok")
 }
 
-func GetDirList(path string) []map[string]interface{} {
+func GetDirList(c echo.Context, dir string) error {
+	d, _ := os.Getwd()
+	p := path.Join(d, dir)
+	if utils.IsExistDir(p) {
+		return Error(c, 300, "不是目录")
+	}
 	// 获取目录下的文件和子目录信息
-	list := utils.GetFileList(path)
+	list := utils.GetFileList(p)
 	if list == nil {
 		return nil
 	}
 	// 创建切片
-	var dir []map[string]interface{}
+	var dirs []map[string]interface{}
 	for _, info := range list {
 		// 创建map
 		m := make(map[string]interface{})
 
 		m["name"] = info.Name()
+		link := path.Join(dir, info.Name())
 		if !info.IsDir() {
 			// Size()单位为Byte,所以要转换
 			m["size"] = utils.ByteSize(uint64(info.Size()))
 		} else {
 			m["size"] = "-"
+			//link = "/?dir=" + path.Join(dir, info.Name())
 		}
 		// 时间
 		m["modTime"] = utils.TimeToString(info.ModTime())
 		// 权限
 		//m["mode"] = info.Mode().String()
-		m["path"] = strings.ReplaceAll(path+"\\"+info.Name(), "\\", "/")
+		m["link"] = utils.PathSeparatorSlash(link)
 		m["isDir"] = info.IsDir()
 		// 放进切片中
-		dir = append(dir, m)
+		dirs = append(dirs, m)
 	}
-	return dir
+
+	data := make(map[string]interface{})
+	//data["total"] = total
+	data["file"] = dirs
+	links := utils.PathSplitter(dir, "Bajins Soft")
+	data["links"] = links
+	return Success(c, "获取文件列表成功", data)
 }
 
 // 获取展示目录下的所有
 func GetDir(c echo.Context) error {
 
-	// 页
-	/*lows := c.QueryParam("low")
-	var low int
-	var err error
-	if lows != "" {
-		low, err = strconv.Atoi(lows)
-		if err != nil {
-			return Error(c, 300, "请传入参数low")
+	dir := c.QueryParam("dir")
+	if c.Request().URL.Path == "/" || dir != "" {
+		if dir == "" {
+			dir = "/"
 		}
-	}
-	// 数量
-	highs := c.QueryParam("high")
-	var high int
-	if highs != "" {
-		high, err = strconv.Atoi(highs)
-		if err != nil {
-			return Error(c, 300, "请传入参数high")
-		}
-	}*/
 
-	toPath := c.QueryParam("path")
-	//config := services.ConfigService.GetByType("filePath")
-	//var path string
-	//if config != nil && utils.IsExistDir(config[0].Value) {
-	//	path = config[0].Value
-	//} else {
-	//	path = utils.OsPath()
-	//}
-	if toPath == "" || toPath == "/" {
-		d, _ := os.Getwd()
-		toPath = d
+		fmt.Println(c.Path(), c.Request().URL.Path, dir)
+		return GetDirList(c, dir)
 	}
-	dir := GetDirList(toPath)
-	fmt.Println(c.Path(), toPath, dir)
-	//total := len(dir)
-	//if lows != "" && highs != "" {
-	//	low = (low - 1) * high
-	//	end := low + high
-	//	if total < end {
-	//		end = total
-	//	}
-	//	dir = dir[low:end]
-	//}
-	data := make(map[string]interface{})
-	//data["total"] = total
-	data["file"] = dir
-	links := utils.PathSplitter(toPath, "Bajins Soft")
-	data["links"] = links
-	return Success(c, "获取文件列表成功", data)
+
+	return DownloadFile(c)
+
 }
 
 // 下载文件
 func DownloadFile(c echo.Context) error {
-	fmt.Println("============", c.QueryParams())
-	filePath := c.QueryParam("filePath")
-	if filePath == "" {
-		//this.Ctx.WriteString("目录路径不正确")
-		return Error(c, 402, "目录路径不正确")
-	}
-	filePath = path.Join(utils.OsPath(), filePath)
-	fmt.Println(filePath)
-	if !utils.IsFile(filePath) {
-		return Error(c, 402, "目录路径不正确")
+	dir, _ := os.Getwd()
+	filePath := path.Join(dir, c.Request().URL.Path)
+	if !utils.IsFileExist(filePath) {
+		return Error(c, 402, "不是文件")
 	}
 	fileName := filepath.Base(filePath)
 	//c.Response().Header().Set("Content-Type","application/x-msdownload")
