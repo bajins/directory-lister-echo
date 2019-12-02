@@ -20,12 +20,9 @@ func Test(c echo.Context) error {
 	return c.JSON(http.StatusOK, "ok")
 }
 
-func GetDirList(root, path string) []map[string]interface{} {
-	if utils.IsExistDir(root) {
-		return nil
-	}
+func GetDirList(path string) []map[string]interface{} {
 	// 获取目录下的文件和子目录信息
-	list := utils.GetFileList(root + path)
+	list := utils.GetFileList(path)
 	if list == nil {
 		return nil
 	}
@@ -56,6 +53,7 @@ func GetDirList(root, path string) []map[string]interface{} {
 
 // 获取展示目录下的所有
 func GetDir(c echo.Context) error {
+
 	// 页
 	/*lows := c.QueryParam("low")
 	var low int
@@ -84,8 +82,12 @@ func GetDir(c echo.Context) error {
 	//} else {
 	//	path = utils.OsPath()
 	//}
-	d, _ := os.Getwd()
-	dir := GetDirList(d, toPath)
+	if toPath == "" || toPath == "/" {
+		d, _ := os.Getwd()
+		toPath = d
+	}
+	dir := GetDirList(toPath)
+	fmt.Println(c.Path(), toPath, dir)
 	//total := len(dir)
 	//if lows != "" && highs != "" {
 	//	low = (low - 1) * high

@@ -62,6 +62,7 @@ func main() {
 	e.Static("static", "static")
 	e.GET("/dir", GetDir)
 	e.Any("/", GetDir)
+	e.Any("/*", GetDir)
 	e.Any("/home/*", Test)
 	e.Logger.Fatal(e.Start(Port()))
 }
