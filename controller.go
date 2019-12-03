@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"os"
 	"path"
 	"path/filepath"
 )
@@ -19,9 +18,27 @@ func Admin(c echo.Context) error {
 	return c.JSON(http.StatusOK, "ok")
 }
 
-func GetDirList(c echo.Context, dir string) error {
-	d, _ := os.Getwd()
-	p := path.Join(d, dir)
+// 获取展示目录下的所有
+func GetDir(c echo.Context) error {
+
+	dir := c.QueryParam("dir")
+	//root, _ := os.Getwd()
+	root := "D:\\cyw\\upload.1"
+	if c.Request().URL.Path == "/" || dir != "" {
+		if dir == "" {
+			dir = "/"
+		}
+
+		fmt.Println(c.Path(), c.Request().URL.Path, dir)
+		return GetDirList(c, root, dir)
+	}
+
+	return DownloadFile(c, root)
+
+}
+
+func GetDirList(c echo.Context, root, dir string) error {
+	p := path.Join(root, dir)
 	if utils.IsExistDir(p) {
 		return Error(c, 300, "不是目录")
 	}
@@ -63,33 +80,24 @@ func GetDirList(c echo.Context, dir string) error {
 	return Success(c, "获取文件列表成功", data)
 }
 
-// 获取展示目录下的所有
-func GetDir(c echo.Context) error {
-
-	dir := c.QueryParam("dir")
-	if c.Request().URL.Path == "/" || dir != "" {
-		if dir == "" {
-			dir = "/"
-		}
-
-		fmt.Println(c.Path(), c.Request().URL.Path, dir)
-		return GetDirList(c, dir)
-	}
-
-	return DownloadFile(c)
-
-}
-
 // 下载文件
-func DownloadFile(c echo.Context) error {
-	dir, _ := os.Getwd()
-	filePath := path.Join(dir, c.Request().URL.Path)
+func DownloadFile(c echo.Context, root string) error {
+	filePath := path.Join(root, c.Request().URL.Path)
 	if !utils.IsFileExist(filePath) {
 		return Error(c, 402, "不是文件")
 	}
-	fileName := filepath.Base(filePath)
-	//c.Response().Header().Set("Content-Type","application/x-msdownload")
-	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+fileName)
+	filename := filepath.Base(filePath)
+	//ft, err := utils.GetContentType(filepath.Ext(filename))
+	//if err != nil {
+	//	return Error(c, http.StatusInternalServerError, err.Error())
+	//}
+	//c.Response().Header().Set(echo.HeaderContentType, ft)
+	//fi,err:=os.Stat(filename)
+	//if err != nil {
+	//	return Error(c, http.StatusInternalServerError, err.Error())
+	//}
+	//c.Response().Header().Set(echo.HeaderContentLength, utils.ToString(fi.Size()))
+	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+filename)
 	//第一个参数是文件的地址，第二个参数是下载显示的文件的名称
 	return c.File(filePath)
 }
