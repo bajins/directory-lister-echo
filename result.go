@@ -5,12 +5,7 @@ import (
 	"net/http"
 )
 
-/**
- * 请求返回成功
- *
- * @author claer www.bajins.com
- * @date 2019/6/28 12:48
- */
+// 请求返回成功
 func Success(c echo.Context, msg string, data interface{}) error {
 	own := make(map[string]interface{})
 	own["code"] = 200
@@ -19,15 +14,18 @@ func Success(c echo.Context, msg string, data interface{}) error {
 	return c.JSON(http.StatusOK, own)
 }
 
-/**
- * 请求返回错误
- *
- * @author claer www.bajins.com
- * @date 2019/6/28 12:48
- */
+// 请求返回错误
 func Error(c echo.Context, code int, msg string) error {
 	own := make(map[string]interface{})
 	own["code"] = code
 	own["message"] = msg
 	return c.JSON(http.StatusOK, own)
+}
+
+// 系统错误
+func SystemError(c echo.Context, code int, msg string) error {
+	own := make(map[string]interface{})
+	own["code"] = code
+	own["message"] = msg
+	return c.JSON(code, own)
 }
