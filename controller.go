@@ -22,20 +22,17 @@ func Admin(c echo.Context) error {
 
 // 获取展示目录下的所有
 func GetDir(c echo.Context) error {
-
 	dir := c.QueryParam("dir")
-	//root, _ := os.Getwd()
-	root := "D:\\v2ray-windows-64"
 	if c.Request().URL.Path == "/" || dir != "" {
 		if dir == "" {
 			dir = "/"
 		}
 
 		log.Println(c.Path(), c.Request().URL.Path, dir)
-		return GetDirList(c, root, dir)
+		return GetDirList(c, dir)
 	}
 
-	return DownloadFile(c, root)
+	return DownloadFile(c)
 
 }
 
@@ -70,7 +67,9 @@ func PathSplitter(toPath string, rootName string) []map[string]string {
 	return links
 }
 
-func GetDirList(c echo.Context, root, dir string) error {
+func GetDirList(c echo.Context, dir string) error {
+	//root, _ := os.Getwd()
+	root := "D:\\v2ray-windows-64"
 	p := filepath.Join(root, dir)
 	if utils.IsExistDir(p) {
 		return Error(c, 300, "不是目录")
@@ -114,37 +113,7 @@ func GetDirList(c echo.Context, root, dir string) error {
 }
 
 // 下载文件
-func DownloadFile(c echo.Context, root string) error {
-	filePath := filepath.Join(root, c.Request().URL.Path)
-	if !utils.IsFileExist(filePath) {
-		return SystemError(c, 402, "文件不存在")
-	}
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		return SystemError(c, http.StatusInternalServerError, err.Error())
-	}
-	filename := fileInfo.Name()
-	// 返回路径的最后一个元素
-	//filename := filepath.Base(filePath)
-	log.Println(filename)
-
-	//ft, err := utils.GetContentType(filepath.Ext(filename))
-	//if err != nil {
-	//	return Error(c, http.StatusInternalServerError, err.Error())
-	//}
-	//c.Response().Header().Set(echo.HeaderContentType, ft)
-	//fi,err:=os.Stat(filename)
-	//if err != nil {
-	//	return Error(c, http.StatusInternalServerError, err.Error())
-	//}
-	//c.Response().Header().Set(echo.HeaderContentLength, utils.ToString(fi.Size()))
-	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+filename)
-	//第一个参数是文件的地址，第二个参数是下载显示的文件的名称
-	return c.File(filePath)
-}
-
-// 下载文件
-func Download(c echo.Context) error {
+func DownloadFile(c echo.Context) error {
 	filePath := strings.Replace(c.Request().URL.Path, "/download", "", 1)
 	log.Println(filePath, c.QueryParams())
 	if !utils.IsFileExist(filePath) {
@@ -160,6 +129,26 @@ func Download(c echo.Context) error {
 		return SystemError(c, http.StatusInternalServerError, err.Error())
 	}
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+fileInfo.Name())
-	//第一个参数是文件的地址，第二个参数是下载显示的文件的名称
+
+	//fi,err:=os.Stat(filename)
+	//if err != nil {
+	//	return Error(c, http.StatusInternalServerError, err.Error())
+	//}
+	//c.Response().Header().Set(echo.HeaderContentLength, utils.ToString(fi.Size()))
+
+	// 获取后缀并判断
+	if filepath.Ext(filePath) == "" {
+		//ft, err := utils.GetContentType(filePath)
+		//if err != nil {
+		//	return SystemError(c, http.StatusInternalServerError, err.Error())
+		//}
+		c.Response().Header().Set(echo.HeaderContentType, "")
+
+		//f, err := os.Open(filePath)
+		//if err != nil {
+		//	return echo.NotFoundHandler(c)
+		//}
+		//return c.Stream(http.StatusOK, "", f)
+	}
 	return c.File(filePath)
 }

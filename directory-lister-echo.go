@@ -63,7 +63,7 @@ func main() {
 	e.GET("/dir", GetDir)
 	e.Any("/", GetDir)
 	e.Any("/*", GetDir)
-	e.Any("/download/*path", Download)
+	e.Any("/download/*path", DownloadFile)
 	e.Any("/admin/*", Admin)
 	e.Logger.Fatal(e.Start(Port()))
 }
