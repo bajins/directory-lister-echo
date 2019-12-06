@@ -2,6 +2,7 @@ package main
 
 import (
 	"directory-lister-echo/utils"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
@@ -72,12 +73,12 @@ func GetDirList(c echo.Context, dir string) error {
 	root := "D:\\v2ray-windows-64"
 	p := filepath.Join(root, dir)
 	if utils.IsExistDir(p) {
-		return Error(c, 300, "不是目录")
+		return ErrorJSON(c, 300, "不是目录")
 	}
 	// 获取目录下的文件和子目录信息
 	list, err := utils.GetFileList(p)
 	if list == nil || err != nil {
-		return Error(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return ErrorJSON(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 	}
 	// 创建切片
 	var dirs []map[string]interface{}
@@ -109,7 +110,7 @@ func GetDirList(c echo.Context, dir string) error {
 	data["file"] = dirs
 	links := PathSplitter(dir, "Bajins Soft")
 	data["links"] = links
-	return Success(c, "获取文件列表成功", data)
+	return SuccessJSON(c, "获取文件列表成功", data)
 }
 
 // 下载文件
@@ -122,17 +123,17 @@ func DownloadFile(c echo.Context) error {
 		filePath = filepath.Join(root, filePath)
 	}
 	if !utils.IsFileExist(filePath) {
-		return SystemError(c, http.StatusNotFound, "文件不存在")
+		return SystemErrorJSON(c, http.StatusNotFound, "文件不存在")
 	}
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		return SystemError(c, http.StatusInternalServerError, err.Error())
+		return SystemErrorJSON(c, http.StatusInternalServerError, err.Error())
 	}
-	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename="+fileInfo.Name())
+	c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=\"%s\"", fileInfo.Name()))
 
 	//fi,err:=os.Stat(filename)
 	//if err != nil {
-	//	return Error(c, http.StatusInternalServerError, err.Error())
+	//	return ErrorJSON(c, http.StatusInternalServerError, err.ErrorJSON())
 	//}
 	//c.Response().Header().Set(echo.HeaderContentLength, utils.ToString(fi.Size()))
 
@@ -140,7 +141,7 @@ func DownloadFile(c echo.Context) error {
 	if filepath.Ext(filePath) == "" {
 		//ft, err := utils.GetContentType(filePath)
 		//if err != nil {
-		//	return SystemError(c, http.StatusInternalServerError, err.Error())
+		//	return SystemErrorJSON(c, http.StatusInternalServerError, err.ErrorJSON())
 		//}
 		c.Response().Header().Set(echo.HeaderContentType, "")
 

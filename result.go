@@ -6,7 +6,7 @@ import (
 )
 
 // 请求返回成功
-func Success(c echo.Context, msg string, data interface{}) error {
+func SuccessJSON(c echo.Context, msg string, data interface{}) error {
 	own := make(map[string]interface{})
 	own["code"] = 200
 	own["message"] = msg
@@ -15,7 +15,7 @@ func Success(c echo.Context, msg string, data interface{}) error {
 }
 
 // 请求返回错误
-func Error(c echo.Context, code int, msg string) error {
+func ErrorJSON(c echo.Context, code int, msg string) error {
 	own := make(map[string]interface{})
 	own["code"] = code
 	own["message"] = msg
@@ -23,7 +23,7 @@ func Error(c echo.Context, code int, msg string) error {
 }
 
 // 系统错误
-func SystemError(c echo.Context, code int, msg string) error {
+func SystemErrorJSON(c echo.Context, code int, msg string) error {
 	own := make(map[string]interface{})
 	own["code"] = code
 	own["message"] = msg
