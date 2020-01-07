@@ -119,7 +119,7 @@ func DownloadFile(c echo.Context) error {
 	log.Println(filePath, c.QueryParams())
 	if !utils.IsFileExist(filePath) {
 		//root, _ := os.Getwd()
-		root := "D:\\v2ray-windows-64"
+		root := "D:\\v2rayN"
 		filePath = filepath.Join(root, filePath)
 	}
 	if !utils.IsFileExist(filePath) {
