@@ -18,26 +18,29 @@ import (
 )
 
 func TestDB(t *testing.T) {
+	// https://gorm.io/zh_CN/docs/conventions.html
 	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
 		panic("failed to connect database")
 	}
 	defer db.Close()
 
-	// Migrate the schema
+	// AutoMigrate为给定模型运行自动迁移，只会添加缺少的字段，不会删除/更改当前数据
 	db.AutoMigrate(&User{})
 
 	// 创建
 	db.Create(&User{Name: "L1212", Email: "test@test.com"})
+	db.Commit()
+
+	u := db.Exec("select * from user")
+	t.Log(u.Rows())
 
 	// 读取
 	var user User
-	db.First(&user, 1)                   // 查询id为1的product
-	db.First(&user, "code = ?", "L1212") // 查询code为l1212的product
-
-	// 更新 - 更新product的price为2000
-	db.Model(&user).Update("Price", 2000)
-
-	// 删除 - 删除product
-	db.Delete(&user)
+	db.Select(&user)
+	t.Log(user)
+	db.First(&user, 1) // 查询id为1的product
+	t.Log(user)
+	db.First(&user, "name = ?", "L1212") // 查询code为l1212的product
+	t.Log(user)
 }
