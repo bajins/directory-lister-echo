@@ -26,7 +26,10 @@ func TestDB(t *testing.T) {
 	defer db.Close()
 
 	// AutoMigrate为给定模型运行自动迁移，只会添加缺少的字段，不会删除/更改当前数据
-	db.AutoMigrate(&User{})
+	db = db.AutoMigrate(&User{})
+	if db.Error != nil {
+		panic("failed to create table")
+	}
 
 	// 创建
 	db.Create(&User{Name: "L1212", Email: "test@test.com"})
