@@ -70,7 +70,7 @@ func PathSplitter(toPath string, rootName string) []map[string]string {
 
 func GetDirList(c echo.Context, dir string) error {
 	//root, _ := os.Getwd()
-	root := "D:\\v2ray-windows-64"
+	root := "D:\\v2rayN"
 	p := filepath.Join(root, dir)
 	if utils.IsExistDir(p) {
 		return ErrorJSON(c, 300, "不是目录")
