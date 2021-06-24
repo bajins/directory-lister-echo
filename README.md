@@ -8,3 +8,4 @@
 * [https://github.com/zhaojun1998/zfile](https://github.com/zhaojun1998/zfile)
    * [https://github.com/zhaojun1998/zfile-vue](https://github.com/zhaojun1998/zfile-vue)
 * [https://github.com/lrsjng/h5ai](https://github.com/lrsjng/h5ai)
+* [https://github.com/xlzy520/CloundDisk3.0](https://github.com/xlzy520/CloundDisk3.0)
